@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>mirror</title>
+    <link rel="icon" type="image/x-icon" href="yi.png" />
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+
+        div.center {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            margin: -250px 0 0 -320px;
+            width: 640px;
+            min-height: 427px;
+            padding: 0px;
+        }
+
+        .mirror {
+            -moz-transform: scaleX(-1);
+            -webkit-transform: scaleX(-1);
+            -o-transform: scaleX(-1);
+            transform: scaleX(-1);
+            /*IE*/
+            filter: FlipH;
+        }
+    </style>
+    <style type="text/css">
+        .mirror_restore {
+            animation: mirror forwards 6s;
+            -webkit-transform: scaleX(-1);
+            animation: mirror forwards 0s;
+            /* Firefox: */
+            -moz-animation: mirror forwards 6s;
+            /* Safari and Chrome: */
+            -webkit-animation: mirror forwards 6s;
+            /* Opera: */
+            -o-animation: mirror forwards 6s;
+        }
+
+        @keyframes mirror {
+            from {
+                transform: scaleX(-1);
+            }
+
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        @-moz-keyframes mirror /* Firefox */
+        {
+            from {
+                -moz-transform: scaleX(-1);
+            }
+
+            to {
+                -moz-transform: scaleX(1);
+            }
+        }
+
+        @-webkit-keyframes mirror /* Safari 和 Chrome */
+        {
+            from {
+                -webkit-transform: scaleX(-1)
+            }
+
+            to {
+                -webkit-transform: scaleX(1)
+            }
+        }
+
+        @-o-keyframes mirror /* Opera */
+        {
+            from {
+                -o-transform: scaleX(-1);
+            }
+
+            to {
+                -o-transform: scaleX(1);
+            }
+        }
+
+        .boom {
+            position: fixed;
+            margin: auto;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            height: 150px;
+            z-index: 1; /*添加层级*/
+        }
+
+            .boom input {
+                width: 200px;
+                height: 22px;
+                -moz-box-shadow: 2px 1px 5px #000000;
+                -webkit-box-shadow: 2px 1px 5px #000000;
+                box-shadow: 2px 1px 5px #000000;
+                border: solid 1px #8f848f;
+                -moz-border-radius-topleft: 5px;
+                -moz-border-radius-topright: 5px;
+                -moz-border-radius-bottomleft: 5px;
+                -moz-border-radius-bottomright: 5px;
+                -webkit-border-top-left-radius: 5px;
+                -webkit-border-top-right-radius: 5px;
+                -webkit-border-bottom-left-radius: 5px;
+                -webkit-border-bottom-right-radius: 5px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+            }
+
+            .boom button {
+                height: 22px;
+                margin-left: 10px;
+                background-color: white;
+                -moz-box-shadow: 2px 1px 5px #000000;
+                -webkit-box-shadow: 2px 1px 5px #000000;
+                box-shadow: 2px 1px 5px #000000;
+                border: solid 1px #8f848f;
+                -moz-border-radius-topleft: 5px;
+                -moz-border-radius-topright: 5px;
+                -moz-border-radius-bottomleft: 5px;
+                -moz-border-radius-bottomright: 5px;
+                -webkit-border-top-left-radius: 5px;
+                -webkit-border-top-right-radius: 5px;
+                -webkit-border-bottom-left-radius: 5px;
+                -webkit-border-bottom-right-radius: 5px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+            }
+    </style>
+    <script src="jquery-2.0.0.min.js"></script>
+</head>
+<body style="direction: ltr;">
+    <div class="boom">
+        <input type="password" id='pwd' />
+        <button id="boom"> boom！ </button>
+    </div>
+    <div class="center">
+        <img id="img_reversed" class="mirror" src="http://www.ilidilid.com/images/f4006755976540c9445b0efd6fcc5f21_l.png" width="640">
+    </div>
+    <script type="text/javascript">
+        //function a() {
+        //    $("mirror").addClass("mirror_ifrom");
+        //    setTimeout(function () {
+        //        $("iframe").attr("src", "bilibili")
+        //    },
+        //        1500)
+        //}
+        //function boom() {
+        //    var pwd = $("#pwd").val();
+        //    $.ajax({
+        //        url: "http://www.ilidilid.com/boom",//无法跨越请求
+        //        type: "POST",
+        //        data: {
+        //            pwd: pwd
+        //        },
+        //    }).done(function (data) {
+        //        if (data == "2233") {
+        //            $(".boom").hide();
+        //            $("mirror").addClass("mirror_ifrom");
+        //            //window.localStorage.show == 1;
+        //            //a()
+        //        } else {
+        //            $("#pwd").val("")
+        //        }
+        //    }).fail(function () {
+        //        console.log("error")
+        //    }).always(function () {
+        //        console.log("complete")
+        //    })
+        //}
+        $("#boom").click(function (event) {
+            //boom()
+            var pwd = $("#pwd").val();
+            if (pwd == "2233") {
+                $(".boom").hide();
+                $("#img_reversed").addClass("mirror_restore");
+            } else {
+                $("#pwd").val("");
+            }
+        });
+        //if (window.localStorage.show == 1) {
+        //    $(".boom").hide();
+        //    a()
+        //};
+
+        console.log("%c ilidilid %c http://www.ilidilid.com/ ", "color: #fff; margin: 1em 0; padding: 5px 0; background: #3498db;", "margin: 1em 0; padding: 5px 0; background: #efefef;")
+    </script>
+</body>
+</html>
