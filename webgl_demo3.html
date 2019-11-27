@@ -1,0 +1,235 @@
+﻿<html>
+<head>
+    <style type="text/css">
+        canvas {
+            width: 640px;
+            height: 480px;
+            display: block;
+            margin: 50px auto;
+        }
+    </style>
+    <script src="jquery-2.0.0.min.js"></script>
+    <script src="gl-matrix.js"></script>
+    <title>webgl_demo3</title>
+</head>
+<body onload="main()">
+    <canvas id="glcanvas">
+        Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
+    </canvas>
+    <script>
+        main();
+
+        function main() {
+            const canvas = document.getElementById("glcanvas");
+            //初始化gl对象
+            const gl = canvas.getContext("webgl");
+            //仅在WebGL可用且正常工作时才继续
+            if (!gl) {
+                alert("Unable to initialize WebGL.Your browser or machine may not support it.");
+                return;
+            }
+
+            //顶点着色器
+            const vsSource = `
+                attribute vec4 aVertexPosition;
+                attribute vec4 aVertexColor;
+
+                uniform mat4 uModelViewMatrix;
+                uniform mat4 uProjectionMatrix;
+
+                varying lowp vec4 vColor;
+
+                void main(){
+                    gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+                    vColor = aVertexColor;
+                }
+            `;
+
+            //片段着色器
+            const fsSource = `
+                varying lowp vec4 vColor;
+
+                void main(){
+                    gl_FragColor = vColor;
+                }
+            `;
+            
+            //着色程序
+            const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+
+            //集合着色器的所有信息
+            //统一位置方便查看，使用
+            const programInfo = {
+                program: shaderProgram,
+                attribLocations: {
+                    vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+                    vertexColor: gl.getAttribLocation(shaderProgram,'aVertexColor'),
+                },
+                uniformLocations: {
+                    projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+                    modelViewMatrix: gl.getUniformLocation(shaderProgram,'uModelViewMatrix'),
+                },
+            }
+
+            //构建将要绘制的所有对象
+            const buffers = initBuffers(gl);
+
+            //调用绘制方法
+            drawScene(gl, programInfo, buffers);
+        }
+        
+        //绘制场景
+        function drawScene(gl, programInfo, buffers) {   
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);  //清除成黑色,不透明
+            gl.clearDepth(1.0);                 //清除所有
+            gl.enable(gl.DEPTH_TEST);           //启用深度测试
+            gl.depthFunc(gl.LEQUAL);            //近 事 模糊 远 事
+
+            //在绘制之前清空canvas画布
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            //创建透视图矩阵，这是一个特殊的矩阵
+            //用于模拟相机中透视图的变形。
+            //我们的视场为45度，宽度/高度
+            //与画布的显示尺寸匹配的比例
+            //而我们只想查看0.1个单位之间的对象
+            //并且距离相机100个单位。
+
+            const fieldOfView = 45 * Math.PI / 180;    //弧度
+            const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+            const zNear = 0.1;
+            const zFar = 100.0;
+            const projectionMatrix = mat4.create();
+
+            mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+
+            const modelViewMatrix = mat4.create();
+
+            mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -6.0]);
+
+            {
+                const numComponents = 2;
+                const type = gl.FLOAT;
+                const normalize = false;
+                const stride = 0;
+                const offset = 0;
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+                gl.vertexAttribPointer(
+                    programInfo.attribLocations.vertexPosition,
+                    numComponents,
+                    type,
+                    normalize,
+                    stride,
+                    offset);
+                gl.enableVertexAttribArray(
+                    programInfo.attribLocations.vertexPosition);
+            }
+
+            {
+                const numComponents = 4;
+                const type = gl.FLOAT;
+                const normalize = false;
+                const stride = 0;
+                const offset = 0;
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+                gl.vertexAttribPointer(
+                    programInfo.attribLocations.vertexColor,
+                    numComponents,
+                    type,
+                    normalize,
+                    stride,
+                    offset);
+                gl.enableVertexAttribArray(
+                    programInfo.attribLocations.vertexColor);
+            }
+
+            gl.useProgram(programInfo.program);
+
+            gl.uniformMatrix4fv(
+                programInfo.uniformLocations.projectionMatrix,
+                false,
+                projectionMatrix);
+            gl.uniformMatrix4fv(
+                programInfo.uniformLocations.modelViewMatrix,
+                false,
+                modelViewMatrix);
+
+            {
+                const offset = 0;
+                const vertexCount = 4;
+                gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+            }
+        }
+
+        //初始化需要的缓冲区
+        function initBuffers(gl) {
+            //为正方形的位置创建一个缓冲区
+            const positionBuffer = gl.createBuffer();
+            //创建数组定位正方形
+            const positions = [
+                1.0, 1.0,
+                -1.0, 1.0,
+                1.0, -1.0,
+                -1.0, -1.0,
+            ];
+            //选择positionBuffer作为缓冲操作的位置
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            //将位置数组传递到webgl以构建形状
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+            const colorBuffer = gl.createBuffer();
+            const colors = [
+                1.0, 1.0, 1.0, 1.0, //白
+                1.0, 0.0, 0.0, 1.0, //红
+                0.0, 1.0, 0.0, 1.0, //绿
+                0.0, 0.0, 1.0, 1.0, //蓝
+            ];
+            gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+            return {
+                position: positionBuffer,
+                color:colorBuffer,
+            };
+        }
+        
+        //初始化着色器
+        function initShaderProgram(gl, vsSource, fsSource) {//gl对象,顶点源，片段源
+            const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+            const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+            const shaderProgram = gl.createProgram();//创建着色程序
+            gl.attachShader(shaderProgram, vertexShader);
+            gl.attachShader(shaderProgram, fragmentShader);
+            gl.linkProgram(shaderProgram);
+
+            //如果创建程序失败,弹窗提示
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+                return null;
+            }
+            return shaderProgram;
+        }
+
+        //按类型加载源,下载源和编译
+        function loadShader(gl, type, source) {
+            //创建着色器对象
+            const shader = gl.createShader(type);
+            //将源发送到着色器对象
+            gl.shaderSource(shader, source);
+            //编译着色器程序
+            gl.compileShader(shader);
+            //查看是否编译成功
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);//从gl对象中删除着色器
+                return null;
+            }
+            return shader;
+        }
+    </script>
+    <script>
+        console.log("%c webgl %c https://developer.mozilla.org/zh-CN/docs/Web/API/WebGL_API/Tutorial/Using_shaders_to_apply_color_in_WebGL ", "color: #fff; margin: 1em 0; padding: 5px 0; background: #3498db;", "margin: 1em 0; padding: 5px 0; background: #efefef;")
+    </script>
+</body>
+</html>
