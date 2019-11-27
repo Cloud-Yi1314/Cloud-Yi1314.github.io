@@ -153,21 +153,21 @@
             }
 
             {
-                const numComponents = 4;
+                const numComponents = 2;
                 const type = gl.FLOAT;
                 const normalize = false;
                 const stride = 0;
                 const offset = 0;
-                gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord);
                 gl.vertexAttribPointer(
-                    programInfo.attribLocations.vertexColor,
+                    programInfo.attribLocations.textureCoord,
                     numComponents,
                     type,
                     normalize,
                     stride,
                     offset);
                 gl.enableVertexAttribArray(
-                    programInfo.attribLocations.vertexColor);
+                    programInfo.attribLocations.textureCoord);
             }
 
             //告诉WebGL使用哪些索引来索引顶点
