@@ -1,0 +1,137 @@
+<html>
+    <head>
+        <title>WebAR</title>
+        <!-- <script src="https://threejsfundamentals.org/threejs/resources/threejs/r119/build/three.min.js"></script> -->
+        <!--<script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js'></script>  慕课视频中地址-->
+        <script src="https://cdn.staticfile.org/jquery/2.2.4/jquery.min.js"></script>
+        <!-- 直接引入官网下载的文件 -->
+        <script src="js/three.js"></script>
+        <!-- <script src="js/three.min.js"></script> -->
+        <!-- <script src="js/three.module.js"></script> -->
+        <script src="js/glTFLoader.js"></script>
+        <style>
+            body {
+                background-color: #252423;
+            }
+
+            #character_canvas {
+                width: 100%;
+            }
+
+            .buttons {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 5em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            }
+
+            .switch-button {
+            padding: 0.25em;
+            border-radius: 4px;
+            border: none;
+            width: 4em;
+            height: 2em;
+            background: #0069ed;
+            color: #ffffff;
+            text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="buttons">
+            <button class="switch-button">Next</button>
+        </div>
+        <canvas id="app-canvas"></canvas>
+
+        <script >
+            class App{
+                constructor(canvas,model,animations){
+                    this.scene = App.createScene()
+                        .add(model)
+                        .add(App.createAmbientLight())
+                        .add(App.createDirectionalLight());
+                    this.camera = App.createCamera();
+                    this.renderer = App.createRenderer(canvas);
+                }
+
+                static createScene(){
+                    let scene = new THREE.scene();
+                    scene.background = new THREE.Color(0x336495);
+                    return scene;
+                }
+
+                static createAmbientLight(){
+                    return new THREE.AmbientLight(0xffffff,1);
+                }
+
+                static createDirectionalLight(){
+                    let light = new THREE.DirectionalLight(0xffffff,2);
+                    light.position.set(0,400,350);
+                    return light;
+                }
+
+                static createCamera(){
+                    let camera = new THREE.PerspectiveCamera(
+                        50,
+                        window.innerWidth / window.innerHeight,
+                        0.1,
+                        1000
+                    );
+                    camera.position.z = 10;
+                    camera.position.x = 0;
+                    camera.position.y = -3;
+                    return camera;
+                }
+
+                static createRenderer(canvas){
+                    let renderer = new THREE.WebGLRenderer({canvas});
+                    renderer.setPixelRatio(window.devicePixelRatio);
+                    renderer.toneMapping = THREE.ReinhardToneMapping;
+                    renderer.toneMappingExposure = 2.0;
+                    return renderer;
+                }
+
+                update(){
+                    this.resize();
+                    this.renderer.renderer(this.scene,this.camera);
+                    window.requestAnimationFrame(()=>{this.update()});
+                }
+
+                resize(){
+                    let canvasSize = this.renderer.getSize(new THREE.Vector2());
+                    let windowSize = new THREE.Vector2(window.innerWidth,window.innerHeight);
+                    if(!canvasSize.equals(windowSize)){
+                        this.renderer.getSize(windowSize.x,windowSize.y,false);
+                        this.camera.aspect = windowSize.x/windowSize.y;
+                        this.camera.updateProjectionMatrix();
+                    }
+                }
+            }
+
+            let loader = new THREE.GLTFLoader();
+            loader = loader.setCrossOrigin('Anonymous');
+
+            loader.load('models/multi.glb',
+                function (gltf){
+                    let model = gltf.scene;
+                    model.scale.set(10,10,10);
+                    model.position.y = -6;
+
+                    let canvas = document.querySelector("#app-canvas");
+                    let app = new App(canvas,model,glft.animations);
+                },
+                undefined,
+                function(error){
+                    console.error(error);
+                }
+            );
+
+            alert('ok');
+        </script>
+    </body>
+</html>
