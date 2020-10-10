@@ -56,7 +56,8 @@
                         .add(App.createAmbientLight())
                         .add(App.createDirectionalLight());
                     this.camera = App.createCamera();
-                    this.renderer = App.createRenderer(canvas);
+                    this.renderer = App.createRenderer(canvas,animations);
+                    this.update();
                 }
 
                 static createScene(){
@@ -114,7 +115,6 @@
             }
 
             let loader = new THREE.GLTFLoader();
-            loader = loader.setCrossOrigin('Anonymous');
 
             loader.load('models/multi.glb',
                 function (gltf){
