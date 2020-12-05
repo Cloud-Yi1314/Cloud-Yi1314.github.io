@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-      <title>myWorld</title>
+        <title>myWorld</title>
     </head>
     <body>
         <a href="views/heart.html">heart</a> <br/>
@@ -17,7 +17,36 @@
             <a href="views/webgl_demo6.html">demo6</a>
         </p>
         <a href="views/swords.html">swords</a> <br/>
+        <button onclick="loadJs('js/InfiniteAdd.js')">InfiniteAdd</button> <br/>
     </body>
+    <script type="text/javascript">
+        let map ={};
+        function loadJs(src,callback){
+            if(map[src]){
+                console.log("已加载资源"+src);
+                return;
+            }
+            let script=document.createElement('script');
+            script.type="text/javascript";
+            if(typeof(callback)!="undefined"){
+                if(script.readyState){
+                    script.onreadystatechange=function(){
+                        if(script.readyState == "loaded" || script.readyState == "complete"){
+                            script.onreadystatechange=null;
+                            callback();
+                        }
+                    }
+                }else{
+                    script.onload=function(){
+                        callback();
+                    }
+                }
+            }
+            script.src=src;
+            document.body.appendChild(script);
+            map[src] = true;
+        }
+    </script>
     <script type="text/javascript">
         console.log("%c myWorld %c https://cloud-yi1314.github.io/ ", "color: #fff; margin: 1em 0; padding: 5px 0; background: #3498db;", "margin: 1em 0; padding: 5px 0; background: #efefef;")
 
